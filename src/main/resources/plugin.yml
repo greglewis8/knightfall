@@ -1,0 +1,4 @@
+name: Knightfall
+version: '${project.version}'
+main: me.verosity.knightfall.Knightfall
+api-version: '1.20'
