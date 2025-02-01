@@ -1,4 +1,4 @@
-package me.verosity.knightfall;
+package me.verosity.knightfall.listeners;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;

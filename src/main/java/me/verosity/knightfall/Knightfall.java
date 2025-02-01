@@ -1,5 +1,7 @@
 package me.verosity.knightfall;
 
+import me.verosity.knightfall.listeners.ShearSheepListener;
+import me.verosity.knightfall.listeners.XPBottleBreakListener;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -1,4 +1,4 @@
-package me.verosity.knightfall;
+package me.verosity.knightfall.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
