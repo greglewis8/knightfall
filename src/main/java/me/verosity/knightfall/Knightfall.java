@@ -1,8 +1,6 @@
 package me.verosity.knightfall;
 
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Knightfall extends JavaPlugin implements Listener {
@@ -11,7 +9,10 @@ public final class Knightfall extends JavaPlugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Knightfall has been enabled.");
-        getServer().getPluginManager().registerEvents(this,this);
+
+        getServer().getPluginManager().registerEvents(new XPBottleBreakListener(), this);
+        getServer().getPluginManager().registerEvents(new ShearSheepListener(), this);
+
 
     }
 
@@ -23,10 +24,18 @@ public final class Knightfall extends JavaPlugin implements Listener {
 
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
-        System.out.println("A player has joined the server.");
-    }
+// REGISTER LISTENERS IF WANNA USE
+//    @EventHandler
+//    public void onPlayerJoin(PlayerJoinEvent event){
+//        System.out.println("A player has joined the server.");
+//    }
+//
+//    @EventHandler
+//    public void onLeaveBed(PlayerBedLeaveEvent event){
+//        Player player = event.getPlayer();
+//        player.sendMessage("STOP GOONING! DIE 4 GOON");
+//        player.setHealth(0.0);
+//    }
 
 
 }
