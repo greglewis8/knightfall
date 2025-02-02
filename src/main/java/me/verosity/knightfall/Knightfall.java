@@ -1,9 +1,19 @@
 package me.verosity.knightfall;
 
+import me.verosity.knightfall.commands.FeedCommand;
+import me.verosity.knightfall.commands.GodCommand;
 import me.verosity.knightfall.listeners.ShearSheepListener;
 import me.verosity.knightfall.listeners.XPBottleBreakListener;
+import me.verosity.knightfall.listeners.tutorial.JoinLeaveListener;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.sql.SQLOutput;
 
 public final class Knightfall extends JavaPlugin implements Listener {
 
@@ -14,6 +24,10 @@ public final class Knightfall extends JavaPlugin implements Listener {
 
         getServer().getPluginManager().registerEvents(new XPBottleBreakListener(), this);
         getServer().getPluginManager().registerEvents(new ShearSheepListener(), this);
+        getServer().getPluginManager().registerEvents(new JoinLeaveListener(), this);
+
+        getCommand("god").setExecutor(new GodCommand());
+        getCommand("feed").setExecutor(new FeedCommand());
 
 
     }
@@ -26,18 +40,20 @@ public final class Knightfall extends JavaPlugin implements Listener {
 
     }
 
-// REGISTER LISTENERS IF WANNA USE
-//    @EventHandler
-//    public void onPlayerJoin(PlayerJoinEvent event){
-//        System.out.println("A player has joined the server.");
-//    }
-//
-//    @EventHandler
-//    public void onLeaveBed(PlayerBedLeaveEvent event){
-//        Player player = event.getPlayer();
-//        player.sendMessage("STOP GOONING! DIE 4 GOON");
-//        player.setHealth(0.0);
-//    }
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
+        if (command.getName().equalsIgnoreCase("die")){
+            if(sender instanceof Player){
+                Player p = (Player) sender;
+                p.setHealth(0.0);
+                p.sendMessage(ChatColor.RED + "You will die <3");
+            }
+        }else if(sender instanceof ConsoleCommandSender){
+            System.out.println("The command was run by the console, u cant rlly die tbh");
+        }
+
+        return true;
+    }
 
 
 }
