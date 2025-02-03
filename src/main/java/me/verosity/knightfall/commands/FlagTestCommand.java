@@ -21,6 +21,7 @@ public class FlagTestCommand implements CommandExecutor {
             flag.setHelmet(new ItemStack(Material.WHITE_WOOL));
             flag.setInvulnerable(true);
         }
+        return true;
     }
 
 }
