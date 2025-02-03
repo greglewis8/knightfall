@@ -1,6 +1,7 @@
 package me.verosity.knightfall;
 
 import me.verosity.knightfall.commands.FeedCommand;
+import me.verosity.knightfall.commands.FlagTestCommand;
 import me.verosity.knightfall.commands.GodCommand;
 import me.verosity.knightfall.listeners.ShearSheepListener;
 import me.verosity.knightfall.listeners.XPBottleBreakListener;
@@ -17,8 +18,16 @@ import java.sql.SQLOutput;
 
 public final class Knightfall extends JavaPlugin implements Listener {
 
+    private static Knightfall plugin;
+
+    public static Knightfall getPlugin() {
+        return plugin;
+    }
+
     @Override
     public void onEnable() {
+
+        plugin = this;
         // Plugin startup logic
         getLogger().info("Knightfall has been enabled.");
 
@@ -28,6 +37,9 @@ public final class Knightfall extends JavaPlugin implements Listener {
 
         getCommand("god").setExecutor(new GodCommand());
         getCommand("feed").setExecutor(new FeedCommand());
+        getCommand("flagtest").setExecutor(new FlagTestCommand());
+
+
 
 
     }

@@ -17,7 +17,7 @@ public class JoinLeaveListener implements Listener {
         if (player.hasPlayedBefore()){
             e.setJoinMessage(ChatColor.GREEN + "Welcome bakc 2 the severn " + ChatColor.BOLD + player.getDisplayName());
         }else{
-            e.setJoinMessage(ChatColor.GREEN + player.getDisplayName() + ChatColor.BLUE +"Welcome 2 the severn ! Its cool pookie>" +);
+            e.setJoinMessage(ChatColor.GREEN + player.getDisplayName() + ChatColor.BLUE +"Welcome 2 the severn ! Its cool pookie>");
         }
 
     }

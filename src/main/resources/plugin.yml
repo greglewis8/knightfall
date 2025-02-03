@@ -14,3 +14,6 @@ commands:
   feed:
     description: Sets hunger to full
     usage: /<command>
+  flagtest:
+    description: Spawns flag
+    usage: /<command>
