@@ -3,6 +3,7 @@ package me.verosity.knightfall;
 import me.verosity.knightfall.commands.FeedCommand;
 import me.verosity.knightfall.commands.FlagTestCommand;
 import me.verosity.knightfall.commands.GodCommand;
+import me.verosity.knightfall.listeners.FlagHitListener;
 import me.verosity.knightfall.listeners.ShearSheepListener;
 import me.verosity.knightfall.listeners.XPBottleBreakListener;
 import me.verosity.knightfall.listeners.tutorial.JoinLeaveListener;
@@ -11,8 +12,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLOutput;
 
@@ -34,6 +37,7 @@ public final class Knightfall extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new XPBottleBreakListener(), this);
         getServer().getPluginManager().registerEvents(new ShearSheepListener(), this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(), this);
+        getServer().getPluginManager().registerEvents(new FlagHitListener(), this);
 
         getCommand("god").setExecutor(new GodCommand());
         getCommand("feed").setExecutor(new FeedCommand());
