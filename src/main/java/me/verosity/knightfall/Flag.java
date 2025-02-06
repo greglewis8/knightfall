@@ -34,6 +34,8 @@ public class Flag {
         flag.setInvisible(true);
         flag.setAI(false);
         flag.setGravity(false);
+        flag.getEquipment().setHelmet(new ItemStack(Material.BARRIER));
+
 
         // Spawn an invisible armor stand
         ArmorStand armorStand = (ArmorStand) world.spawn(loc, ArmorStand.class);
