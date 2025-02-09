@@ -3,17 +3,9 @@ version: '${project.version}'
 main: me.verosity.knightfall.Knightfall
 api-version: '1.20'
 commands:
-  die:
-    description: An easy to die
-    usage: /<command>
-  god:
-    description: become invincible
-    usage: /<command>
-    aliases:
-      - goonermode
-  feed:
-    description: Sets hunger to full
-    usage: /<command>
   flagtest:
+    description: Spawns flag
+    usage: /<command>
+  flagremove:
     description: Spawns flag
     usage: /<command>
