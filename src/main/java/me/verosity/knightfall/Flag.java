@@ -26,11 +26,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
-import static java.lang.String.format;
-
 public class Flag implements Listener{
     private static List<Zombie> flags = new ArrayList<>();
     private static List<Double> flagsHP = new ArrayList<>();
+    private static List<Kingdom> flagsOwner = new ArrayList<>();
 
     public static List<Zombie> getFlags() {
         return flags;
@@ -52,7 +51,7 @@ public class Flag implements Listener{
     private static final double flagMinHP = 0.0;
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public static Zombie spawnFlag(Location loc) {
+    public static Zombie spawnFlag(Location loc, Kingdom kingdom) {
         World world = loc.getWorld();
         if (world == null) return null;
 
@@ -62,6 +61,14 @@ public class Flag implements Listener{
         flag.setInvisible(true);
         flag.setAI(false);
         flag.setGravity(false);
+
+        flag.getEquipment().clear();
+        flag.getEquipment().setHelmet(null);
+        flag.getEquipment().setChestplate(null);
+        flag.getEquipment().setLeggings(null);
+        flag.getEquipment().setBoots(null);
+        flag.getEquipment().setItemInMainHand(null);
+        flag.getEquipment().setItemInOffHand(null);
 
         // Spawn an invisible armor stand
         ArmorStand armorStand = (ArmorStand) world.spawn(loc, ArmorStand.class);
@@ -75,13 +82,20 @@ public class Flag implements Listener{
         flag.addPassenger(armorStand);
 
         flag.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 4, false, false));
+        flag.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, false, false));
+
+        flag.setCustomName(kingdom.getKingdomName());
 
         flags.add(flag);
         flagsHP.add(flagMaxHP);
+        flagsOwner.add(kingdom);
+
         createFlagBar();
+
 
         return flag;
     }
+
 
     public static boolean isFlag(Zombie zombie) {
         return flags.contains(zombie);
@@ -123,17 +137,21 @@ public class Flag implements Listener{
     private static final List<BossBar> flagBossBars = new ArrayList<>();
 
     private static void createFlagBar(){
-        BossBar flagBar = Bukkit.createBossBar("Flag Health : 100%", BarColor.RED, BarStyle.SEGMENTED_10);
+        BossBar flagBar = Bukkit.createBossBar("unknown's Flag Health : 100%", BarColor.RED, BarStyle.SEGMENTED_10);
         flagBossBars.add(flagBar);
     }
 
     private static void updateFlagBar(int i) {
         if (i < 0 || i >= flags.size()) return; // Ensure the index is valid
+        if (flags.isEmpty()) {
+            System.out.println("No flags found. Skipping update.");
+            return;
+        }
         BossBar flag = flagBossBars.get(i);
         double doubleFlagHP = flagsHP.get(i);
         int intFlagHP = (int) doubleFlagHP;
 
-        flag.setTitle("Flag Health : " + intFlagHP + "%");
+        flag.setTitle(flagsOwner.get(i).getKingdomName() +" Flag Health : " + intFlagHP + "%");
         flag.setProgress(doubleFlagHP / 100);
     }
 
@@ -157,14 +175,16 @@ public class Flag implements Listener{
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e){
         Player player = e.getPlayer();
-        for(int i = 0; i < flagBossBars.size(); i++){
-            Zombie targetEntity = flags.get(i);
-            double distance = player.getLocation().distance(targetEntity.getLocation());
+        if(!flags.isEmpty()) {
+            for (int i = 0; i < flagBossBars.size(); i++) {
+                Zombie targetEntity = flags.get(i);
+                double distance = player.getLocation().distance(targetEntity.getLocation());
 
-            if(distance <= distanceThreshold){
-                showBossBar(i,player);
-            } else {
-                removeBossBar(i,player);
+                if (distance <= distanceThreshold) {
+                    showBossBar(i, player);
+                } else {
+                    removeBossBar(i, player);
+                }
             }
         }
 
@@ -179,7 +199,7 @@ public class Flag implements Listener{
             FlagData flagData = new FlagData();
             for (int i = 0; i < flags.size(); i++) {
                 Zombie flag = flags.get(i);
-                flagData.flagEntries.add(new FlagEntry(flag.getUniqueId(), flag.getLocation(), flagsHP.get(i)));
+                flagData.flagEntries.add(new FlagEntry(flag.getUniqueId(), flag.getLocation(), flagsHP.get(i), flagsOwner.get(i).getKingdomName()));
             }
             writer.write(gson.toJson(flagData));
         } catch (IOException e) {
@@ -198,6 +218,7 @@ public class Flag implements Listener{
 
             flags.clear();
             flagsHP.clear();
+            flagsOwner.clear();
 
             for (FlagEntry entry : flagData.flagEntries) {
                 World world = Bukkit.getWorld(entry.world);
@@ -209,6 +230,7 @@ public class Flag implements Listener{
                 world.loadChunk(chunk);
 
                 double flagHP = entry.health;
+
                 // Get all entities in the chunk
                 Entity[] possibleFlags = chunk.getEntities();
 
@@ -224,6 +246,16 @@ public class Flag implements Listener{
                         if (possibleflagUUID.equals(flagUUID)) {
                             flags.add(flagZombie);
                             flagsHP.add(flagHP);
+                            String flagKingdomName = entry.flagOwner;
+
+                            List<Kingdom> kingdoms = Kingdom.getKingdoms();
+                            for(Kingdom possibleKingdom : kingdoms){
+                                if (possibleKingdom.getKingdomName().equals(flagKingdomName)){
+                                    flagsOwner.add(possibleKingdom);
+                                }
+                            }
+
+
                             createFlagBar();
                             System.out.println("FLAG FOUND!");
 
@@ -249,14 +281,16 @@ public class Flag implements Listener{
         String world;
         double x, y, z;
         double health;
+        String flagOwner;
 
-        public FlagEntry(UUID uuid, Location loc, double health) {
+        public FlagEntry(UUID uuid, Location loc, double health, String flagOwner) {
             this.uuid = uuid;
             this.world = loc.getWorld().getName();
             this.x = loc.getX();
             this.y = loc.getY();
             this.z = loc.getZ();
             this.health = health;
+            this.flagOwner = flagOwner;
         }
     }
 }

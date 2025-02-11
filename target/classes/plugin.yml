@@ -3,9 +3,14 @@ version: '1.0-SNAPSHOT'
 main: me.verosity.knightfall.Knightfall
 api-version: '1.20'
 commands:
-  flagtest:
-    description: Spawns flag
-    usage: /<command>
   flagremove:
     description: Spawns flag
     usage: /<command>
+    permission: knightfall.admin
+  kingdom:
+    description: Creates a team
+    usage: /kingdom create <teamName>
+permissions:
+  knightfall.admin:
+    description: Run admin commands
+    default: op
