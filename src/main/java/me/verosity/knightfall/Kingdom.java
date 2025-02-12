@@ -2,7 +2,6 @@ package me.verosity.knightfall;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.scoreboard.Scoreboard;
@@ -18,14 +17,14 @@ public class Kingdom {
     private String kingdomName;
     private Player kingdomLeader;
     private List<Player> kingdomPlayers;
-    private Color kingdomColor;
+    private String kingdomColor;
     private List<Zombie> kingdomFlags;
 
     public Kingdom(String name, Player leader, boolean spawnFlag) {
         kingdomName = name;
         kingdomLeader = leader;
         kingdomPlayers = new ArrayList<Player>();
-        kingdomColor = Color.WHITE;
+        kingdomColor = "white";
         kingdomFlags = new ArrayList<Zombie>();
 
         kingdoms.add(this);
@@ -38,9 +37,10 @@ public class Kingdom {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Team team = scoreboard.registerNewTeam(kingdomName);
         team.setPrefix(ChatColor.WHITE + "[" + kingdomName + "] ");
-        leader.sendMessage(ChatColor.GREEN + "Kingdom " + kingdomName + " has been created!");
+        leader.sendMessage(ChatColor.getByChar(kingdomColor) + "Kingdom " + kingdomName + " has been created!");
         team.addEntry(leader.getName());
     }
+
 
     public static List<Kingdom> getKingdoms() {
         return kingdoms;
@@ -86,11 +86,11 @@ public class Kingdom {
         this.kingdomFlags = kingdomFlags;
     }
 
-    public Color getKingdomColor() {
+    public String getKingdomColor() {
         return kingdomColor;
     }
 
-    public void setKingdomColor(Color kingdomColor) {
+    public void setKingdomColor(String kingdomColor) {
         this.kingdomColor = kingdomColor;
     }
 }
