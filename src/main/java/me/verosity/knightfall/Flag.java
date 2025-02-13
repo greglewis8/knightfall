@@ -117,15 +117,16 @@ public class Flag implements Listener{
                 flagsHP.set(healedFlagIndex, flagMaxHP);
             }
         }
+        updateFlagBar(healedFlagIndex);
     }
 
-    public static double findFlagHP(Zombie zombie) {
-        int index = flags.indexOf(zombie);
-        if (index > -1) {
-            return flagsHP.get(index);
+    public static int findFlagIndex(Zombie flag){
+        for (int i = 0; i < flags.size(); i++){
+            if (flag.equals(flags.get(i))){
+                return i;
+            }
         }
-
-        return -1.0;
+        return -1;
     }
 
 
@@ -148,7 +149,7 @@ public class Flag implements Listener{
         double doubleFlagHP = flagsHP.get(i);
         int intFlagHP = (int) doubleFlagHP;
 
-        flag.setTitle(flagsOwner.get(i).getKingdomName() +" Flag Health : " + intFlagHP + "%");
+        flag.setTitle(ColorConverter.convertToColorString(flagsOwner.get(i).getKingdomColor()) + flagsOwner.get(i).getKingdomName() +"§r Flag Health : " + intFlagHP + "%");
         flag.setProgress(doubleFlagHP / 100);
     }
 
@@ -164,6 +165,12 @@ public class Flag implements Listener{
         if (bossBar.getPlayers().contains(player)) {
             bossBar.removePlayer(player);  // Add the player to the boss bar
         }
+    }
+
+    public static void setBossBarColor(int flagIndex, String newBannerColor){
+        BossBar bossBar = flagBossBars.get(flagIndex);
+        bossBar.setColor(ColorConverter.stringToBossBarColor(newBannerColor));
+        updateFlagBar(flagIndex);
     }
 
 
@@ -204,7 +211,6 @@ public class Flag implements Listener{
         }
     }
 
-    // Deserialization - Load Flags from JSON
     // Deserialization - Load Flags from JSON
     public static void loadFlagsFromFile(File file) {
         if (!file.exists()) return;
