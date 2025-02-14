@@ -10,6 +10,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -52,6 +53,8 @@ public class Flag implements Listener{
         World world = loc.getWorld();
         if (world == null) return null;
 
+        world.loadChunk(loc.getChunk());
+
         Zombie flag = (Zombie) world.spawn(loc, Zombie.class);
         flag.setCustomName("flag");
         flag.setCustomNameVisible(true);
@@ -91,6 +94,79 @@ public class Flag implements Listener{
 
 
         return flag;
+    }
+
+    /// Flag Modifications
+
+    public static void flagMove(Zombie flag, Location newLocation) {
+        if (flag == null || newLocation == null) return;
+
+        World world = flag.getWorld();
+        Location oldLocation = flag.getLocation();
+
+        Chunk chunk = world.getChunkAt(newLocation);
+        if (!chunk.isLoaded()) {
+            chunk.load();
+        }
+
+        List<Entity> passengers = flag.getPassengers();
+        for (Entity entity : passengers) {
+            if (entity instanceof ArmorStand) {
+                //entity.teleport(newLocation);
+                flag.removePassenger(entity);
+                Bukkit.getLogger().info("ArmorStand Teleported to: " + newLocation.toString());
+            }
+        }
+
+        flag.setAI(true);
+        flag.setGravity(true); // Allow gravity to prevent glitches during teleport
+        flag.teleport(newLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        newLocation.getChunk().load();
+        flag.setAI(false);
+        flag.setGravity(false); // Restore original settings
+
+        for (Entity entity : passengers) {
+            if (entity instanceof ArmorStand) {
+                entity.teleport(newLocation);
+                flag.addPassenger(entity);
+            }
+        }
+
+        oldLocation.getChunk().unload();
+    }
+
+    public static void deleteFlag(Zombie flag) {
+        int flagIndex = flags.indexOf(flag);
+
+        if (flagIndex != -1) {
+            // Remove from lists
+            flags.remove(flagIndex);
+            flagsHP.remove(flagIndex);
+            flagsOwner.remove(flagIndex);
+
+            // Remove boss bar if it exists
+            if (flagIndex < flagBossBars.size()) {
+                flagBossBars.get(flagIndex).removeAll();
+                flagBossBars.remove(flagIndex);
+            }
+
+            // Remove flag entity from the world
+            List <Entity> flagPassengers = flag.getPassengers();
+            for (Entity x : flagPassengers){
+                x.remove();
+            }
+
+            World flagWorld = flag.getWorld();
+            Chunk flagChunk = flag.getLocation().getChunk();
+
+
+            flag.remove();
+            flagWorld.unloadChunk(flagChunk);
+
+            Bukkit.getLogger().info("Flag removed successfully.");
+        } else {
+            Bukkit.getLogger().warning("Attempted to delete a non-existent flag.");
+        }
     }
 
 
@@ -177,22 +253,26 @@ public class Flag implements Listener{
     private static final double distanceThreshold = 100.0;
 
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e){
+    public void onPlayerMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        if(!flags.isEmpty()) {
-            for (int i = 0; i < flagBossBars.size(); i++) {
-                Zombie targetEntity = flags.get(i);
-                double distance = player.getLocation().distance(targetEntity.getLocation());
 
-                if (distance <= distanceThreshold) {
-                    showBossBar(i, player);
-                } else {
-                    removeBossBar(i, player);
-                }
+        if (flags.isEmpty()) return; // Return early if no flags exist
+
+        Location playerLocation = player.getLocation();
+        double thresholdSquared = distanceThreshold * distanceThreshold; // Use squared threshold
+
+        for (int i = 0; i < flags.size(); i++) {
+            Zombie flag = flags.get(i);
+            double distanceSquared = playerLocation.distanceSquared(flag.getLocation()); // Avoid expensive sqrt()
+
+            if (distanceSquared <= thresholdSquared) {
+                showBossBar(i, player);
+            } else {
+                removeBossBar(i, player);
             }
         }
-
     }
+
 
 
     /// File Saving

@@ -11,6 +11,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Kingdom {
@@ -51,6 +52,38 @@ public class Kingdom {
         team.addEntry(player.getName());
     }
 
+    public static void disbandKingdom(Kingdom kingdom) {
+        if (kingdom == null) return;
+
+        // Notify players
+        for (Player player : kingdom.getKingdomPlayers()) {
+            player.sendMessage(ChatColor.RED + "Your kingdom " + kingdom.getKingdomName() + " has been disbanded.");
+        }
+
+        if (kingdom.getKingdomLeader() != null) {
+            kingdom.getKingdomLeader().sendMessage(ChatColor.RED + "You have disbanded the kingdom: " + kingdom.getKingdomName());
+        }
+
+        // Remove all players from the team
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        Team team = scoreboard.getTeam(kingdom.getKingdomName());
+        if (team != null) {
+            for (String entry : team.getEntries()) {
+                team.removeEntry(entry);
+            }
+            team.unregister(); // Delete the team from the scoreboard
+        }
+
+        // Remove all flags
+        for (Zombie flag : kingdom.getKingdomFlags()) {
+            Flag.deleteFlag(flag); // Remove from the game
+        }
+
+        // Remove the kingdom from the list
+        kingdoms.remove(kingdom);
+    }
+
+
     public static boolean isKing(Player player){
         for (Kingdom kingdom : kingdoms){
             if (kingdom.kingdomLeader == player){
@@ -62,8 +95,19 @@ public class Kingdom {
 
     public static Kingdom findLeaderKingdom(Player player){
         for (Kingdom kingdom : kingdoms){
-            if (kingdom.kingdomLeader == player){
+            if (kingdom.kingdomLeader.equals(player)){
                 return kingdom;
+            }
+        }
+        return null;
+    }
+
+    public static Kingdom findPlayerKingdom(Player player){
+        for (Kingdom kingdom : kingdoms){
+            for (Player playersInKingdom : kingdom.kingdomPlayers){
+                if (playersInKingdom.equals(player)){
+                    return kingdom;
+                }
             }
         }
         return null;
@@ -93,14 +137,22 @@ public class Kingdom {
             int flagIndex = Flag.findFlagIndex(flag);
             Flag.setBossBarColor(flagIndex, newColor);
         }
-
-        //int flagIndex()
-
-
-
     }
 
-
+    public void removePlayer(Player player) {
+        Iterator<Player> iterator = kingdomPlayers.iterator();
+        while (iterator.hasNext()) {
+            Player removedPlayer = iterator.next();
+            if (player.equals(removedPlayer)) {
+                iterator.remove(); // Safe removal
+                Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+                Team team = scoreboard.getTeam(this.getKingdomName());
+                if (team != null) { // Always check for null before using
+                    team.removeEntry(player.getName());
+                }
+            }
+        }
+    }
 
     public static List<Kingdom> getKingdoms() {
         return kingdoms;
