@@ -90,7 +90,7 @@ public class Flag implements Listener{
         flagsHP.add(flagMaxHP);
         flagsOwner.add(kingdom);
 
-        createFlagBar();
+        createFlagBar(flag);
 
 
         return flag;
@@ -215,6 +215,25 @@ public class Flag implements Listener{
         flagBossBars.add(flagBar);
     }
 
+    private static void createFlagBar(Zombie flag){
+        //double tempHealth = flag.getHealth();
+        int flagIndex = 0;
+        for (int i = 0; i < flags.size(); i++) {
+            Zombie allFlag = flags.get(i);
+            if (allFlag.equals(flag)){
+                flagIndex = i;
+            }
+        }
+
+        double doubleFlagHP = flagsHP.get(flagIndex);
+        int intFlagHP = (int) doubleFlagHP;
+
+        BossBar flagBar = Bukkit.createBossBar("unknown's Flag Health : 100%", BarColor.WHITE, BarStyle.SEGMENTED_10);
+        flagBar.setTitle((ColorConverter.convertToColorString(flagsOwner.get(flagIndex).getKingdomColor()) + flagsOwner.get(flagIndex).getKingdomName() +"§r Flag Health : " + intFlagHP + "%"));
+        flagBossBars.add(flagBar);
+    }
+
+
     private static void updateFlagBar(int i) {
         if (i < 0 || i >= flags.size()) return; // Ensure the index is valid
         if (flags.isEmpty()) {
@@ -309,42 +328,35 @@ public class Flag implements Listener{
                 Location loc = new Location(world, entry.x, entry.y, entry.z);
                 Chunk chunk = loc.getChunk();
 
-                // Ensure the chunk is loaded
                 world.loadChunk(chunk);
 
                 double flagHP = entry.health;
 
-                // Get all entities in the chunk
                 Entity[] possibleFlags = chunk.getEntities();
 
                 System.out.println(Arrays.toString(possibleFlags));
 
                 for (Entity possibleflag : possibleFlags) {
-                    if (possibleflag instanceof Zombie) {
+                    String possibleflagUUID = possibleflag.getUniqueId().toString();
+                    String flagUUID = entry.uuid.toString();
+
+                    if (possibleflagUUID.equals(flagUUID)) {
                         Zombie flagZombie = (Zombie) possibleflag;
-                        String possibleflagUUID = possibleflag.getUniqueId().toString();
-                        String flagUUID = entry.uuid.toString();
+                        flags.add(flagZombie);
+                        flagsHP.add(flagHP);
+                        String flagKingdomName = entry.flagOwner;
 
-                        // Compare UUIDs to check if it's the correct flag
-                        if (possibleflagUUID.equals(flagUUID)) {
-                            flags.add(flagZombie);
-                            flagsHP.add(flagHP);
-                            String flagKingdomName = entry.flagOwner;
-
-                            List<Kingdom> kingdoms = Kingdom.getKingdoms();
-                            for(Kingdom possibleKingdom : kingdoms){
-                                if (possibleKingdom.getKingdomName().equals(flagKingdomName)){
-                                    flagsOwner.add(possibleKingdom);
-                                }
+                        List<Kingdom> kingdoms = Kingdom.getKingdoms();
+                        for(Kingdom possibleKingdom : kingdoms){
+                            if (possibleKingdom.getKingdomName().equals(flagKingdomName)){
+                                flagsOwner.add(possibleKingdom);
                             }
-
-
-                            createFlagBar();
-                            System.out.println("FLAG FOUND!");
-
-                            int flagIndex = flags.size()-1;
-                            updateFlagBar(flagIndex);
                         }
+                        createFlagBar();
+                        System.out.println("FLAG FOUND!");
+
+                        int flagIndex = flags.size()-1;
+                        updateFlagBar(flagIndex);
                     }
                 }
             }
