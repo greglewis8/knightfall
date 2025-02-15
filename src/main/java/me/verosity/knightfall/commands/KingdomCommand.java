@@ -48,11 +48,6 @@ public class KingdomCommand implements CommandExecutor {
         else if (args.length == 1 && args[0].equalsIgnoreCase("disband")) {
             disbandTeam(args, player);
         }
-        // /kingdom getflags
-        else if (args.length == 1 && args[0].equalsIgnoreCase("getflags")) {
-            //disbandTeam(args, player);
-            getFlags(args, player);
-        }
         // /kingdom create <name>
         else if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
             createKingdom(args, player);
@@ -77,26 +72,6 @@ public class KingdomCommand implements CommandExecutor {
         return true;
     }
 
-    private void getFlags (String args[], Player sender){
-        if (!Kingdom.isKing(sender)) {
-            sender.sendMessage(ChatColor.RED + "You must be a kingdom leader to get flags.");
-            return;
-        }
-
-        Kingdom senderKingdom = Kingdom.findLeaderKingdom(sender);
-        sender.sendMessage(ChatColor.YELLOW + "Possible Flags:");
-
-        List<Zombie> kingdomFlags = senderKingdom.getKingdomFlags();
-        if (kingdomFlags.isEmpty()) {
-            sender.sendMessage(ChatColor.GRAY + "No flags found for your kingdom.");
-        } else {
-            for (int i = 0; i < kingdomFlags.size(); i++) {
-                Zombie flag = kingdomFlags.get(i);
-                String location = "World: " + flag.getWorld().getName() + " | XYZ: " + formatLocation(flag.getLocation());
-                sender.sendMessage(ChatColor.AQUA + "Flag " + (i) + ": " + ChatColor.WHITE + location);
-            }
-        }
-    }
 
     private void teleportFlag(String args[], Player sender){
         if (!Kingdom.isKing(sender)) {
@@ -112,12 +87,10 @@ public class KingdomCommand implements CommandExecutor {
             flagIndexList.add(i);
         }
 
-        if (!flagIndexList.contains(flagIndex)) {
-            sender.sendMessage(ChatColor.RED + "Error: Flag does not exist!");
-            getFlags(args, sender);
+        if (!flagIndexList.contains(flagIndex)){
+            sender.sendMessage(ChatColor.RED + "Flag does not exist");
             return;
         }
-
 
         Zombie moveFlag = senderKingdom.getKingdomFlags().get(flagIndex);
         Location newLocation = sender.getLocation();
@@ -125,10 +98,6 @@ public class KingdomCommand implements CommandExecutor {
         Flag.flagMove(moveFlag,newLocation);
 
 
-    }
-
-    private String formatLocation(Location location) {
-        return String.format("%.2f, %.2f, %.2f", location.getX(), location.getY(), location.getZ());
     }
 
     private void leaveTeam(String args[], Player sender) {
