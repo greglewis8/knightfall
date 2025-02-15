@@ -10,6 +10,9 @@ commands:
   kingdom:
     description: Creates a team
     usage: /kingdom create <teamName>
+  giveflag:
+    description: Creates a flag fweah carti carti
+    usage: /giveflag
 permissions:
   knightfall.admin:
     description: Run admin commands

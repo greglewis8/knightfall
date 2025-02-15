@@ -46,6 +46,10 @@ public class Kingdom {
         team.addEntry(leader.getName());
     }
 
+    public void addFlag (Zombie addedflag){
+        kingdomFlags.add(addedflag);
+    }
+
     public void addNewMember(Player player){
         this.kingdomPlayers.add(player);
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
@@ -176,7 +180,6 @@ public class Kingdom {
     }
 
     public Player getKingdomLeader() {
-        new FlagItem().getItem();
         return kingdomLeader;
     }
 
