@@ -1,6 +1,5 @@
 package me.verosity.knightfall;
 
-import me.verosity.knightfall.items.FlagItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.ArmorStand;
@@ -176,7 +175,6 @@ public class Kingdom {
     }
 
     public Player getKingdomLeader() {
-        new FlagItem().getItem();
         return kingdomLeader;
     }
 
